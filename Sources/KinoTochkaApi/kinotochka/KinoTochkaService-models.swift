@@ -1,8 +1,8 @@
 import Foundation
 import SimpleHttpClient
 
-extension KinoTochkaService {
-  public typealias BookItem = [String: String]
+extension KinoTochkaApiService {
+  public typealias ResultItem = [String: String]
 
   public struct Pagination: Codable {
     let page: Int
@@ -18,11 +18,11 @@ extension KinoTochkaService {
     }
   }
 
-  public struct BookResults: Codable {
-    public let items: [BookItem]
+  public struct ApiResults: Codable {
+    public let items: [ResultItem]
     let pagination: Pagination?
 
-    init(items: [BookItem] = [], pagination: Pagination? = nil) {
+    init(items: [ResultItem] = [], pagination: Pagination? = nil) {
       self.items = items
 
       self.pagination = pagination

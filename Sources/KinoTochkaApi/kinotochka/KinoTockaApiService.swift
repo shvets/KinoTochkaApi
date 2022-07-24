@@ -2,7 +2,7 @@ import Foundation
 import SwiftSoup
 import SimpleHttpClient
 
-open class KinoTochkaService {
+open class KinoTochkaApiService {
   public static let SiteUrl = "https://kinotochka.co"
   let UserAgent = "KinoTochka User Agent"
 
@@ -53,22 +53,22 @@ open class KinoTochkaService {
     }
   }
 
-  public func getAllMovies(page: Int=1) throws -> BookResults {
+  public func getAllMovies(page: Int=1) throws -> ApiResults {
     try getMovies("/allfilms/", page: page)
   }
 
-  public func getNewMovies(page: Int=1) throws -> BookResults {
+  public func getNewMovies(page: Int=1) throws -> ApiResults {
     try getMovies("/premieres/", page: page)
   }
 
-  public func getAllSeries(page: Int=1) throws -> BookResults {
+  public func getAllSeries(page: Int=1) throws -> ApiResults {
     let result = try getMovies("/serials/", page: page, serie: true)
 
-    return BookResults(items: try sanitizeNames(result.items), pagination: result.pagination)
+    return ApiResults(items: try sanitizeNames(result.items), pagination: result.pagination)
   }
 
-  private func sanitizeNames(_ movies: Any) throws -> [BookItem] {
-    var newMovies = [BookItem]()
+  private func sanitizeNames(_ movies: Any) throws -> [ResultItem] {
+    var newMovies = [ResultItem]()
 
     for var movie in movies as! [[String: String]] {
       let pattern = "(\\d*\\s(С|с)езон)\\s"
@@ -88,26 +88,26 @@ open class KinoTochkaService {
     return newMovies
   }
 
-  public func getAllAnimations(page: Int=1) throws -> BookResults {
+  public func getAllAnimations(page: Int=1) throws -> ApiResults {
     try getMovies("/cartoons/", page: page)
   }
 
-  public func getRussianAnimations(page: Int=1) throws -> BookResults {
+  public func getRussianAnimations(page: Int=1) throws -> ApiResults {
     try getMovies("/cartoons/otechmult/", page: page)
   }
 
-  public func getForeignAnimations(page: Int=1) throws -> BookResults {
-    try getMovies("/cartoon/zarubezmult/", page: page)
+  public func getForeignAnimations(page: Int=1) throws -> ApiResults {
+    try getMovies("/cartoon/foreignmults/", page: page)
   }
 
-  public func getAnime(page: Int=1) throws -> BookResults {
+  public func getAnime(page: Int=1) throws -> ApiResults {
     try getMovies("/anime/", page: page)
   }
 
-  public func getTvShows(page: Int=1) throws -> BookResults {
+  public func getTvShows(page: Int=1) throws -> ApiResults {
     let result = try getMovies("/show/", page: page, serie: true)
 
-    return BookResults(items: try sanitizeNames(result.items), pagination: result.pagination)
+    return ApiResults(items: try sanitizeNames(result.items), pagination: result.pagination)
   }
 
 //  private func fixShowType(_ movies: Any) throws -> [Any] {
@@ -122,8 +122,8 @@ open class KinoTochkaService {
 //    return newMovies
 //  }
 
-  public func getMovies(_ path: String, page: Int=1, serie: Bool=false) throws -> BookResults {
-    var collection = [BookItem]()
+  public func getMovies(_ path: String, page: Int=1, serie: Bool=false) throws -> ApiResults {
+    var collection = [ResultItem]()
     var pagination = Pagination()
 
     let pagePath = getPagePath(path, page: page)
@@ -154,7 +154,7 @@ open class KinoTochkaService {
       }
     }
 
-    return BookResults(items: collection, pagination: pagination)
+    return ApiResults(items: collection, pagination: pagination)
   }
 
   public func getUrls(_ path: String) throws -> [String] {
@@ -225,8 +225,8 @@ open class KinoTochkaService {
     return url
   }
 
-  public func search(_ query: String, page: Int=1, perPage: Int=15) throws -> BookResults {
-    var collection = [BookItem]()
+  public func search(_ query: String, page: Int=1, perPage: Int=15) throws -> ApiResults {
+    var collection = [ResultItem]()
     var pagination = Pagination()
 
     let path = "index.php"
@@ -271,7 +271,7 @@ open class KinoTochkaService {
       }
     }
 
-    return BookResults(items: collection, pagination: pagination)
+    return ApiResults(items: collection, pagination: pagination)
   }
 
   func extractPaginationData(_ document: Document, page: Int) throws -> Pagination {
@@ -292,8 +292,8 @@ open class KinoTochkaService {
     return Pagination(page: page, pages: pages, has_previous: page > 1, has_next: page < pages)
   }
 
-  public func getSeasons(_ path: String, _ thumb: String?=nil) throws -> [BookItem] {
-    var collection = [BookItem]()
+  public func getSeasons(_ path: String, _ thumb: String?=nil) throws -> [ResultItem] {
+    var collection = [ResultItem]()
 
     if let document = try getDocument(path) {
       let items = try document.select("ul[class=seasons-list]")
@@ -349,7 +349,7 @@ open class KinoTochkaService {
 
     var list: [Episode] = []
 
-    let newPath = KinoTochkaService.getURLPathOnly(playlistUrl, baseUrl: KinoTochkaService.SiteUrl)
+    let newPath = KinoTochkaApiService.getURLPathOnly(playlistUrl, baseUrl: KinoTochkaApiService.SiteUrl)
 
     if let response = try apiClient.request(newPath, headers: getHeaders()),
        let data = response.data,
@@ -401,8 +401,8 @@ open class KinoTochkaService {
     Episode(comment: comment, file: "file", files: files)
   }
 
-  public func getCollections() throws -> [BookItem] {
-    var collection = [BookItem]()
+  public func getCollections() throws -> [ResultItem] {
+    var collection = [ResultItem]()
 
     let path = "/podborki_filmov.html"
 
@@ -427,8 +427,8 @@ open class KinoTochkaService {
     return collection
   }
 
-  public func getCollection(_ path: String, page: Int=1) throws -> BookResults {
-    var collection = [BookItem]()
+  public func getCollection(_ path: String, page: Int=1) throws -> ApiResults {
+    var collection = [ResultItem]()
     var pagination = Pagination()
 
     let pagePath = getPagePath(path, page: page)
@@ -459,11 +459,11 @@ open class KinoTochkaService {
       }
     }
 
-    return BookResults(items: collection, pagination: pagination)
+    return ApiResults(items: collection, pagination: pagination)
   }
 
-  public func getUserCollections() throws ->  [BookItem] {
-    var collection = [BookItem]()
+  public func getUserCollections() throws ->  [ResultItem] {
+    var collection = [ResultItem]()
 
     let path = "/playlist/"
 
@@ -486,8 +486,8 @@ open class KinoTochkaService {
     return collection
   }
 
-  public func getUserCollection(_ path: String, page: Int=1) throws -> BookResults {
-    var collection = [BookItem]()
+  public func getUserCollection(_ path: String, page: Int=1) throws -> ApiResults {
+    var collection = [ResultItem]()
     var pagination = Pagination()
 
     let pagePath = getPagePath(path, page: page)
@@ -518,6 +518,6 @@ open class KinoTochkaService {
       }
     }
 
-    return BookResults(items: collection, pagination: pagination)
+    return ApiResults(items: collection, pagination: pagination)
   }
 }

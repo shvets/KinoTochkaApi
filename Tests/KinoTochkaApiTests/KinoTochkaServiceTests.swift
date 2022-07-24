@@ -3,7 +3,7 @@ import XCTest
 @testable import KinoTochkaApi
 
 class KinoTochkaAPITests: XCTestCase {
-  var subject = KinoTochkaService()
+  var subject = KinoTochkaApiService()
 
   func testGetAvailable() throws {
     let result = try subject.available()
