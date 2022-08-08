@@ -58,7 +58,7 @@ open class KinoTochkaApiService {
   }
 
   public func getNewMovies(page: Int=1) throws -> ApiResults {
-    try getMovies("/premieres/", page: page)
+    try getMovies("/to4-premiers/", page: page)
   }
 
   public func getAllSeries(page: Int=1) throws -> ApiResults {
@@ -186,7 +186,7 @@ open class KinoTochkaApiService {
       }
     }
 
-    return urls.reversed()
+    return urls.reversed().filter { !$0.isEmpty  }
   }
 
   public func getSeasonPlaylistUrl(_ path: String) throws -> String {
@@ -418,7 +418,8 @@ open class KinoTochkaApiService {
           let thumb = try link[0].select("img").attr("src")
 
           if href != "/playlist/" {
-            collection.append(["id": href, "name": name, "thumb": thumb])
+            collection.append(["id": href, "name": name, "thumb": KinoTochkaApiService.SiteUrl + thumb])
+            //collection.append(["id": KinoTochkaApiService.SiteUrl + href, "name": name, "thumb": KinoTochkaApiService.SiteUrl + thumb, "type": "collection"])
           }
         }
       }
@@ -478,7 +479,9 @@ open class KinoTochkaApiService {
           let name = try link[1].text()
           let thumb = try link[0].select("img").attr("src")
 
-          collection.append(["id": href, "name": name, "thumb": thumb])
+          collection.append(["id": href, "name": name, "thumb":  KinoTochkaApiService.SiteUrl + thumb])
+
+//          collection.append(["id": KinoTochkaApiService.SiteUrl + href, "name": name, "thumb": KinoTochkaApiService.SiteUrl + thumb, "type": "collection"])
         }
       }
     }
