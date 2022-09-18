@@ -62,7 +62,7 @@ open class KinoTochkaApiService {
   }
 
   public func getAllSeries(page: Int=1) throws -> ApiResults {
-    let result = try getMovies("/serials/", page: page, serie: true)
+    let result = try getMovies("/seriallz/", page: page, serie: true)
 
     return ApiResults(items: try sanitizeNames(result.items), pagination: result.pagination)
   }
