@@ -28,7 +28,9 @@ open class KinoTochkaApiService {
   public func getDocument(_ path: String = "") throws -> Document? {
     var document: Document? = nil
 
-    if let response = try apiClient.request(path), let data = response.data {
+    let response = try apiClient.request(path)
+
+    if let data = response.data {
       document = try data.toDocument()
     }
 
@@ -57,12 +59,12 @@ open class KinoTochkaApiService {
     try getMovies("/allfilms/", page: page)
   }
 
-  public func getNewMovies(page: Int=1) throws -> ApiResults {
-    try getMovies("/to4-premiers/", page: page)
-  }
+//  public func getNewMovies(page: Int=1) throws -> ApiResults {
+//    try getMovies("/to4-premiers/", page: page)
+//  }
 
   public func getAllSeries(page: Int=1) throws -> ApiResults {
-    let result = try getMovies("/seriallz/", page: page, serie: true)
+    let result = try getMovies("/serially/", page: page, serie: true)
 
     return ApiResults(items: try sanitizeNames(result.items), pagination: result.pagination)
   }
@@ -242,8 +244,9 @@ open class KinoTochkaApiService {
 
     let body = content.data(using: .utf8, allowLossyConversion: false)
 
-    if let response = try apiClient.request(path, method: .post, headers: getHeaders(), body: body),
-       let data = response.data,
+    let response = try apiClient.request(path, method: .post, headers: getHeaders(), body: body)
+
+    if let data = response.data,
        let document = try data.toDocument() {
       let items = try document.select("a[class=sres-wrap clearfix]")
 
@@ -351,9 +354,9 @@ open class KinoTochkaApiService {
 
     let newPath = KinoTochkaApiService.getURLPathOnly(playlistUrl, baseUrl: KinoTochkaApiService.SiteUrl)
 
-    if let response = try apiClient.request(newPath, headers: getHeaders()),
-       let data = response.data,
-       let content = String(data: data, encoding: .windowsCP1251) {
+    let response = try apiClient.request(newPath, headers: getHeaders())
+
+    if let data = response.data, let content = String(data: data, encoding: .windowsCP1251) {
 
       if !content.isEmpty {
         if let index = content.find("{\"playlist\":") {

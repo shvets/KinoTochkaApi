@@ -20,14 +20,14 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssert(list.items.count > 0)
   }
 
-  func testGetNewMovies() throws {
-    let list = try subject.getNewMovies()
-
-    print(try list.prettify())
-
-    XCTAssertNotNil(list)
-    XCTAssert(list.items.count > 0)
-  }
+//  func testGetNewMovies() throws {
+//    let list = try subject.getNewMovies()
+//
+//    print(try list.prettify())
+//
+//    XCTAssertNotNil(list)
+//    XCTAssert(list.items.count > 0)
+//  }
 
   func testGetAllSeries() throws {
     let list = try subject.getAllSeries()
