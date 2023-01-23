@@ -2,6 +2,17 @@ import Foundation
 import SwiftSoup
 import SimpleHttpClient
 
+class DelegateToHandle302: NSObject, URLSessionTaskDelegate {
+  var lastLocation: String? = nil
+
+  func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
+                           newRequest request: URLRequest) async -> URLRequest {
+    lastLocation = response.allHeaderFields["Location"] as? String
+
+    return request
+  }
+}
+
 open class KinoTochkaApiService {
   public static let SiteUrl = "https://kinotochka.co"
   let UserAgent = "KinoTochka User Agent"
@@ -23,6 +34,14 @@ open class KinoTochkaApiService {
     }
 
     return headers
+  }
+
+  func getRedirectLocation(path: String) throws -> String? {
+    let delegate = DelegateToHandle302()
+
+    let response = try apiClient.request(path, delegate: delegate)
+
+    return delegate.lastLocation
   }
 
   public func getDocument(_ path: String = "") throws -> Document? {
@@ -55,16 +74,36 @@ open class KinoTochkaApiService {
     }
   }
 
-  public func getAllMovies(page: Int=1) throws -> ApiResults {
-    try getMovies("/allfilms/", page: page)
-  }
-
-//  public func getNewMovies(page: Int=1) throws -> ApiResults {
-//    try getMovies("/to4-premiers/", page: page)
+//  public func getPrefix(_ original: String) throws -> String {
+//    let pagePath = getPagePath("/\(original)", page: 2)
+//
+//    var document: Document? = nil
+//
+//    let response = try apiClient.request(pagePath)
+//
+//    if let data = response.data {
+//      document = try data.toDocument()
+//    }
+//
+//    return ""
 //  }
 
+  public func getAllMovies(page: Int=1) throws -> ApiResults {
+    let location = try getRedirectLocation(path: "/films/") ?? "/films/"
+
+    return try getMovies(location, page: page)
+  }
+
+  public func getNewMovies(page: Int=1) throws -> ApiResults {
+    let location = try getRedirectLocation(path: "/new/") ?? "/new/"
+
+    return try getMovies(location, page: page)
+  }
+
   public func getAllSeries(page: Int=1) throws -> ApiResults {
-    let result = try getMovies("/serially/", page: page, serie: true)
+    let location = try getRedirectLocation(path: "/series/") ?? "/series/"
+
+    let result = try getMovies(location, page: page, serie: true)
 
     return ApiResults(items: try sanitizeNames(result.items), pagination: result.pagination)
   }
@@ -91,7 +130,9 @@ open class KinoTochkaApiService {
   }
 
   public func getAllAnimations(page: Int=1) throws -> ApiResults {
-    try getMovies("/cartoons/", page: page)
+    let location = try getRedirectLocation(path: "/cartoon/") ?? "/cartoon/"
+
+    return try getMovies(location, page: page)
   }
 
   public func getRussianAnimations(page: Int=1) throws -> ApiResults {
@@ -99,15 +140,17 @@ open class KinoTochkaApiService {
   }
 
   public func getForeignAnimations(page: Int=1) throws -> ApiResults {
-    try getMovies("/cartoon/foreignmults/", page: page)
+    try getMovies("/cartoons/zarubeznmults/", page: page)
   }
 
-  public func getAnime(page: Int=1) throws -> ApiResults {
-    try getMovies("/anime/", page: page)
-  }
+//  public func getAnime(page: Int=1) throws -> ApiResults {
+//    try getMovies("/anime/", page: page)
+//  }
 
   public func getTvShows(page: Int=1) throws -> ApiResults {
-    let result = try getMovies("/show/", page: page, serie: true)
+    let location = try getRedirectLocation(path: "/show/") ?? "/show/"
+
+    let result = try getMovies(location, page: page, serie: true)
 
     return ApiResults(items: try sanitizeNames(result.items), pagination: result.pagination)
   }

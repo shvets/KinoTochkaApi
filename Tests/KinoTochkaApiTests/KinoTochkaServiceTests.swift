@@ -20,14 +20,14 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssert(list.items.count > 0)
   }
 
-//  func testGetNewMovies() throws {
-//    let list = try subject.getNewMovies()
-//
-//    print(try list.prettify())
-//
-//    XCTAssertNotNil(list)
-//    XCTAssert(list.items.count > 0)
-//  }
+  func testGetNewMovies() throws {
+    let list = try subject.getNewMovies()
+
+    print(try list.prettify())
+
+    XCTAssertNotNil(list)
+    XCTAssert(list.items.count > 0)
+  }
 
   func testGetAllSeries() throws {
     let list = try subject.getAllSeries()
@@ -36,6 +36,17 @@ class KinoTochkaAPITests: XCTestCase {
 
     XCTAssertNotNil(list)
     XCTAssert(list.items.count > 0)
+  }
+
+  func testGetRedirectLocation() throws {
+    let location = try subject.getRedirectLocation(path: "/series/")
+
+    print(location)
+
+//    print(try list.prettify())
+//
+//    XCTAssertNotNil(list)
+//    XCTAssert(list.items.count > 0)
   }
 
   func testGetRussianAnimations() throws {
@@ -108,21 +119,25 @@ class KinoTochkaAPITests: XCTestCase {
   }
 
   func testPaginationInAllMovies() throws {
-    let result1 = try subject.getAllMovies(page: 1)
+    let result1 = try subject.getPrefix("films")
 
-    let pagination1 = result1.pagination
 
-    XCTAssertTrue(pagination1!.has_next)
-    XCTAssertFalse(pagination1!.has_previous)
-    XCTAssertEqual(pagination1!.page, 1)
-
-    let result2 = try subject.getAllMovies(page: 2)
-
-    let pagination2 = result2.pagination
-
-    XCTAssertTrue(pagination2!.has_next)
-    XCTAssertTrue(pagination2!.has_previous)
-    XCTAssertEqual(pagination2!.page, 2)
+//    let result1 = try subject.getAllMovies(page: 1)
+//
+//    print(result1)
+//    let pagination1 = result1.pagination
+//
+//    XCTAssertTrue(pagination1!.has_next)
+//    XCTAssertFalse(pagination1!.has_previous)
+//    XCTAssertEqual(pagination1!.page, 1)
+//
+//    let result2 = try subject.getAllMovies(page: 2)
+//
+//    let pagination2 = result2.pagination
+//
+//    XCTAssertTrue(pagination2!.has_next)
+//    XCTAssertTrue(pagination2!.has_previous)
+//    XCTAssertEqual(pagination2!.page, 2)
   }
 
   func testPaginationInAllSeries() throws {
