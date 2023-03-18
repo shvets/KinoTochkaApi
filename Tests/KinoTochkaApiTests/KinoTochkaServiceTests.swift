@@ -5,14 +5,14 @@ import XCTest
 class KinoTochkaAPITests: XCTestCase {
   var subject = KinoTochkaApiService()
 
-  func testGetAvailable() throws {
-    let result = try subject.available()
+  func testGetAvailable() async throws {
+    let result = try await subject.available()
 
     XCTAssertEqual(result, true)
   }
 
-  func testGetAllMovies() throws {
-    let list = try subject.getAllMovies()
+  func testGetAllMovies() async throws {
+    let list = try await subject.getAllMovies()
 
     print(try list.prettify())
 
@@ -20,8 +20,8 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssert(list.items.count > 0)
   }
 
-  func testGetNewMovies() throws {
-    let list = try subject.getNewMovies()
+  func testGetNewMovies() async throws {
+    let list = try await subject.getNewMovies()
 
     print(try list.prettify())
 
@@ -29,8 +29,8 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssert(list.items.count > 0)
   }
 
-  func testGetAllSeries() throws {
-    let list = try subject.getAllSeries()
+  func testGetAllSeries() async throws {
+    let list = try await subject.getAllSeries()
 
     print(try list.prettify())
 
@@ -38,8 +38,8 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssert(list.items.count > 0)
   }
 
-  func testGetRedirectLocation() throws {
-    let location = try subject.getRedirectLocation(path: "/series/")
+  func testGetRedirectLocation() async throws {
+    let location = try await subject.getRedirectLocation(path: "/series/")
 
     print(location)
 
@@ -49,8 +49,8 @@ class KinoTochkaAPITests: XCTestCase {
 //    XCTAssert(list.items.count > 0)
   }
 
-  func testGetRussianAnimations() throws {
-    let list = try subject.getRussianAnimations()
+  func testGetRussianAnimations() async throws {
+    let list = try await subject.getRussianAnimations()
 
     print(try list.prettify())
 
@@ -58,8 +58,8 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssert(list.items.count > 0)
   }
 
-  func testGetForeignAnimations() throws {
-    let list = try subject.getForeignAnimations()
+  func testGetForeignAnimations() async throws {
+    let list = try await subject.getForeignAnimations()
 
     print(try list.prettify())
 
@@ -67,8 +67,17 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssert(list.items.count > 0)
   }
 
-  func testGetAnime() throws {
-    let list = try subject.getAnime()
+//  func testGetAnime() throws {
+//    let list = try subject.getAnime()
+//
+//    print(try list.prettify())
+//
+//    XCTAssertNotNil(list)
+//    XCTAssert(list.items.count > 0)
+//  }
+
+  func testGetTvShows() async throws {
+    let list = try await subject.getTvShows()
 
     print(try list.prettify())
 
@@ -76,19 +85,10 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssert(list.items.count > 0)
   }
 
-  func testGetTvShows() throws {
-    let list = try subject.getTvShows()
-
-    print(try list.prettify())
-
-    XCTAssertNotNil(list)
-    XCTAssert(list.items.count > 0)
-  }
-
-  func testGetUrls() throws {
+  func testGetUrls() async throws {
     let path = "/11792-roketmen-2019-4k.html"
 
-    let list = try subject.getUrls(path)
+    let list = try await subject.getUrls(path)
 
     print(try list.prettify())
 
@@ -96,10 +96,10 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssert(list.count > 0)
   }
 
-  func testGetSeriePlaylistUrl() throws {
+  func testGetSeriePlaylistUrl() async throws {
     let path = "14938-katya-i-blek-1-sezon-2020-4.html"
 
-    let url = try subject.getSeasonPlaylistUrl(path)
+    let url = try await subject.getSeasonPlaylistUrl(path)
 
     print(url)
 
@@ -107,10 +107,10 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssert(url.count > 0)
   }
 
-  func testSearch() throws {
+  func testSearch() async throws {
     let query = "ивановы"
 
-    let list = try subject.search(query)
+    let list = try await subject.search(query)
 
     print(try list.prettify())
 
@@ -118,30 +118,30 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssert(list.items.count > 0)
   }
 
-  func testPaginationInAllMovies() throws {
-    let result1 = try subject.getPrefix("films")
+//  func testPaginationInAllMovies() throws {
+//    let result1 = try subject.getPrefix("films")
+//
+//
+////    let result1 = try subject.getAllMovies(page: 1)
+////
+////    print(result1)
+////    let pagination1 = result1.pagination
+////
+////    XCTAssertTrue(pagination1!.has_next)
+////    XCTAssertFalse(pagination1!.has_previous)
+////    XCTAssertEqual(pagination1!.page, 1)
+////
+////    let result2 = try subject.getAllMovies(page: 2)
+////
+////    let pagination2 = result2.pagination
+////
+////    XCTAssertTrue(pagination2!.has_next)
+////    XCTAssertTrue(pagination2!.has_previous)
+////    XCTAssertEqual(pagination2!.page, 2)
+//  }
 
-
-//    let result1 = try subject.getAllMovies(page: 1)
-//
-//    print(result1)
-//    let pagination1 = result1.pagination
-//
-//    XCTAssertTrue(pagination1!.has_next)
-//    XCTAssertFalse(pagination1!.has_previous)
-//    XCTAssertEqual(pagination1!.page, 1)
-//
-//    let result2 = try subject.getAllMovies(page: 2)
-//
-//    let pagination2 = result2.pagination
-//
-//    XCTAssertTrue(pagination2!.has_next)
-//    XCTAssertTrue(pagination2!.has_previous)
-//    XCTAssertEqual(pagination2!.page, 2)
-  }
-
-  func testPaginationInAllSeries() throws {
-    let result1 = try subject.getAllSeries(page: 1)
+  func testPaginationInAllSeries() async throws {
+    let result1 = try await subject.getAllSeries(page: 1)
 
     let pagination1 = result1.pagination
 
@@ -149,7 +149,7 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssertFalse(pagination1!.has_previous)
     XCTAssertEqual(pagination1!.page, 1)
 
-    let result2 = try subject.getAllSeries(page: 2)
+    let result2 = try await subject.getAllSeries(page: 2)
 
     let pagination2 = result2.pagination
 
@@ -158,10 +158,10 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssertEqual(pagination2!.page, 2)
   }
 
-  func testGetSeasons() throws {
+  func testGetSeasons() async throws {
     let path = "/6914-byvaet-i-huzhe-2-sezon-2010.html"
 
-    let list = try subject.getSeasons(path)
+    let list = try await subject.getSeasons(path)
 
     print(try list.prettify())
 
@@ -169,21 +169,12 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssert(list.count > 0)
   }
 
-  func testGetEpisodes() throws {
+  func testGetEpisodes() async throws {
     let path = "14938-katya-i-blek-1-sezon-2020-4.html"
 
-    let playlistUrl = try subject.getSeasonPlaylistUrl(path)
+    let playlistUrl = try await subject.getSeasonPlaylistUrl(path)
 
-    let list = try subject.getEpisodes(playlistUrl)
-
-    print(try list.prettify())
-
-    XCTAssertNotNil(list)
-    XCTAssert(list.count > 0)
-  }
-
-  func testGetAllCollections() throws {
-    let list = try subject.getCollections()
+    let list = try await subject.getEpisodes(playlistUrl)
 
     print(try list.prettify())
 
@@ -191,10 +182,19 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssert(list.count > 0)
   }
 
-  func testGetCollection() throws {
+  func testGetAllCollections() async throws {
+    let list = try await subject.getCollections()
+
+    print(try list.prettify())
+
+    XCTAssertNotNil(list)
+    XCTAssert(list.count > 0)
+  }
+
+  func testGetCollection() async throws {
     let path = "/podborki/bestfilms2017/"
 
-    let list = try subject.getCollection(path)
+    let list = try await subject.getCollection(path)
 
     print(try list.prettify())
 
@@ -202,8 +202,8 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssert(list.items.count > 0)
   }
 
-  func testGetAllUserCollections() throws {
-    let list = try subject.getUserCollections()
+  func testGetAllUserCollections() async throws {
+    let list = try await subject.getUserCollections()
 
     print(try list.prettify())
 
@@ -211,10 +211,10 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssert(list.count > 0)
   }
 
-  func testGetUserCollection() throws {
+  func testGetUserCollection() async throws {
     let path = "/playlist/897/"
 
-    let list = try subject.getUserCollection(path)
+    let list = try await subject.getUserCollection(path)
 
     print(try list.prettify())
 

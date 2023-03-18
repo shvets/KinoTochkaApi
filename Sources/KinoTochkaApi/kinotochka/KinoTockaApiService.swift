@@ -6,10 +6,10 @@ class DelegateToHandle302: NSObject, URLSessionTaskDelegate {
   var lastLocation: String? = nil
 
   func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
-                           newRequest request: URLRequest) async -> URLRequest {
+                  newRequest request: URLRequest) async -> URLRequest? {
     lastLocation = response.allHeaderFields["Location"] as? String
 
-    return request
+    return Optional(request)
   }
 }
 
@@ -22,7 +22,7 @@ open class KinoTochkaApiService {
   public static func getURLPathOnly(_ url: String, baseUrl: String) -> String {
     String(url[baseUrl.index(url.startIndex, offsetBy: baseUrl.count)...])
   }
-  
+
   public init() {}
 
   func getHeaders(_ referer: String="") -> Set<HttpHeader> {
@@ -36,18 +36,30 @@ open class KinoTochkaApiService {
     return headers
   }
 
-  func getRedirectLocation(path: String) throws -> String? {
+  func getRedirectLocation(path: String) async throws -> String? {
     let delegate = DelegateToHandle302()
 
-    let response = try apiClient.request(path, delegate: delegate)
+    let _ = try await apiClient.requestAsync(path, delegate: delegate)
 
     return delegate.lastLocation
   }
 
-  public func getDocument(_ path: String = "") throws -> Document? {
+  public func getDocumentSync(_ path: String = "") throws -> Document? {
     var document: Document? = nil
 
     let response = try apiClient.request(path)
+
+    if let data = response.data {
+      document = try data.toDocument()
+    }
+
+    return document
+  }
+
+  public func getDocument(_ path: String = "") async throws -> Document? {
+    var document: Document? = nil
+
+    let response = try await apiClient.requestAsync(path)
 
     if let data = response.data {
       document = try data.toDocument()
@@ -65,8 +77,8 @@ open class KinoTochkaApiService {
     }
   }
 
-  public func available() throws -> Bool {
-    if let document = try getDocument() {
+  public func available() async throws -> Bool {
+    if let document = try await getDocument() {
       return try document.select("div[class=big-wrapper]").size() > 0
     }
     else {
@@ -88,22 +100,22 @@ open class KinoTochkaApiService {
 //    return ""
 //  }
 
-  public func getAllMovies(page: Int=1) throws -> ApiResults {
-    let location = try getRedirectLocation(path: "/films/") ?? "/films/"
+  public func getAllMovies(page: Int=1) async throws -> ApiResults {
+    let location = try await getRedirectLocation(path: "/films/") ?? "/films/"
 
-    return try getMovies(location, page: page)
+    return try await getMovies(location, page: page)
   }
 
-  public func getNewMovies(page: Int=1) throws -> ApiResults {
-    let location = try getRedirectLocation(path: "/new/") ?? "/new/"
+  public func getNewMovies(page: Int=1) async throws -> ApiResults {
+    let location = try await getRedirectLocation(path: "/new/") ?? "/new/"
 
-    return try getMovies(location, page: page)
+    return try await getMovies(location, page: page)
   }
 
-  public func getAllSeries(page: Int=1) throws -> ApiResults {
-    let location = try getRedirectLocation(path: "/series/") ?? "/series/"
+  public func getAllSeries(page: Int=1) async throws -> ApiResults {
+    let location = try await getRedirectLocation(path: "/series/") ?? "/series/"
 
-    let result = try getMovies(location, page: page, serie: true)
+    let result = try await getMovies(location, page: page, serie: true)
 
     return ApiResults(items: try sanitizeNames(result.items), pagination: result.pagination)
   }
@@ -118,7 +130,7 @@ open class KinoTochkaApiService {
 
       if let name = movie["name"] {
         let correctedName = regex.stringByReplacingMatches(in: name, options: [], range: NSMakeRange(0, name.count),
-          withTemplate: "")
+            withTemplate: "")
 
         movie["name"] = correctedName
 
@@ -129,28 +141,30 @@ open class KinoTochkaApiService {
     return newMovies
   }
 
-  public func getAllAnimations(page: Int=1) throws -> ApiResults {
-    let location = try getRedirectLocation(path: "/cartoon/") ?? "/cartoon/"
+  public func getAllAnimations(page: Int=1) async throws -> ApiResults {
+    let location = try await getRedirectLocation(path: "/cartoon/") ?? "/cartoon/"
 
-    return try getMovies(location, page: page)
+    return try await getMovies(location, page: page)
   }
 
-  public func getRussianAnimations(page: Int=1) throws -> ApiResults {
-    try getMovies("/cartoons/otechmult/", page: page)
+  public func getRussianAnimations(page: Int=1) async throws -> ApiResults {
+    try await getMovies("/cartoons/otechmult/", page: page)
   }
 
-  public func getForeignAnimations(page: Int=1) throws -> ApiResults {
-    try getMovies("/cartoons/zarubeznmults/", page: page)
+  public func getForeignAnimations(page: Int=1) async throws -> ApiResults {
+    let location = try await getRedirectLocation(path: "/zarubezmult/") ?? "/zarubezmult/"
+
+    return try await getMovies(location, page: page)
   }
 
 //  public func getAnime(page: Int=1) throws -> ApiResults {
 //    try getMovies("/anime/", page: page)
 //  }
 
-  public func getTvShows(page: Int=1) throws -> ApiResults {
-    let location = try getRedirectLocation(path: "/show/") ?? "/show/"
+  public func getTvShows(page: Int=1) async throws -> ApiResults {
+    let location = try await getRedirectLocation(path: "/show/") ?? "/show/"
 
-    let result = try getMovies(location, page: page, serie: true)
+    let result = try await getMovies(location, page: page, serie: true)
 
     return ApiResults(items: try sanitizeNames(result.items), pagination: result.pagination)
   }
@@ -167,13 +181,13 @@ open class KinoTochkaApiService {
 //    return newMovies
 //  }
 
-  public func getMovies(_ path: String, page: Int=1, serie: Bool=false) throws -> ApiResults {
+  public func getMovies(_ path: String, page: Int=1, serie: Bool=false) async throws -> ApiResults {
     var collection = [ResultItem]()
     var pagination = Pagination()
 
     let pagePath = getPagePath(path, page: page)
 
-    if let document = try getDocument(pagePath) {
+    if let document = try await getDocument(pagePath) {
       let items = try document.select("div[id=dle-content] div[class=custom1-item]")
 
       for item: Element in items.array() {
@@ -182,7 +196,7 @@ open class KinoTochkaApiService {
         var thumb = ""
 
         if let first = try item.select("a[class=custom1-img] img").first() {
-          thumb = try first.attr("src") 
+          thumb = try first.attr("src")
         }
 
         var type = serie ? "serie" : "movie";
@@ -205,7 +219,7 @@ open class KinoTochkaApiService {
   public func getUrls(_ path: String) throws -> [String] {
     var urls: [String] = []
 
-    if let document = try getDocument(path) {
+    if let document = try getDocumentSync(path) {
       let items = try document.select("script")
 
       for item: Element in items.array() {
@@ -234,10 +248,10 @@ open class KinoTochkaApiService {
     return urls.reversed().filter { !$0.isEmpty  }
   }
 
-  public func getSeasonPlaylistUrl(_ path: String) throws -> String {
+  public func getSeasonPlaylistUrl(_ path: String) async throws -> String {
     var url = ""
 
-    if let document = try getDocument(path) {
+    if let document = try await getDocument(path) {
       let items = try document.select("script")
 
       for item: Element in items.array() {
@@ -270,7 +284,7 @@ open class KinoTochkaApiService {
     return url
   }
 
-  public func search(_ query: String, page: Int=1, perPage: Int=15) throws -> ApiResults {
+  public func search(_ query: String, page: Int=1, perPage: Int=15) async throws -> ApiResults {
     var collection = [ResultItem]()
     var pagination = Pagination()
 
@@ -287,7 +301,7 @@ open class KinoTochkaApiService {
 
     let body = content.data(using: .utf8, allowLossyConversion: false)
 
-    let response = try apiClient.request(path, method: .post, headers: getHeaders(), body: body)
+    let response = try await apiClient.requestAsync(path, method: .post, headers: getHeaders(), body: body)
 
     if let data = response.data,
        let document = try data.toDocument() {
@@ -300,7 +314,7 @@ open class KinoTochkaApiService {
         var thumb = ""
 
         if let first = try item.select("div[class=sres-img] img").first() {
-          thumb = try first.attr("src") 
+          thumb = try first.attr("src")
         }
 
         var type = "movie"
@@ -338,10 +352,10 @@ open class KinoTochkaApiService {
     return Pagination(page: page, pages: pages, has_previous: page > 1, has_next: page < pages)
   }
 
-  public func getSeasons(_ path: String, _ thumb: String?=nil) throws -> [ResultItem] {
+  public func getSeasons(_ path: String, _ thumb: String?=nil) async throws -> [ResultItem] {
     var collection = [ResultItem]()
 
-    if let document = try getDocument(path) {
+    if let document = try await getDocument(path) {
       let items = try document.select("ul[class=seasons-list]")
 
       for item: Element in items.array() {
@@ -388,7 +402,7 @@ open class KinoTochkaApiService {
     return collection
   }
 
-  public func getEpisodes(_ playlistUrl: String) throws -> [Episode] {
+  public func getEpisodes(_ playlistUrl: String) async throws -> [Episode] {
     guard (!playlistUrl.isEmpty) else {
       return []
     }
@@ -397,7 +411,7 @@ open class KinoTochkaApiService {
 
     let newPath = KinoTochkaApiService.getURLPathOnly(playlistUrl, baseUrl: KinoTochkaApiService.SiteUrl)
 
-    let response = try apiClient.request(newPath, headers: getHeaders())
+    let response = try await apiClient.requestAsync(newPath, headers: getHeaders())
 
     if let data = response.data, let content = String(data: data, encoding: .windowsCP1251) {
 
@@ -406,11 +420,11 @@ open class KinoTochkaApiService {
           let playlistContent = content[index ..< content.endIndex]
 
           if let localizedData = playlistContent.data(using: .windowsCP1251) {
-             if let result = try? apiClient.decode(localizedData, to: PlayList.self) {
-               for item in result.playlist {
-                 list = buildEpisodes(item.playlist)
-               }
-             }
+            if let result = try? apiClient.decode(localizedData, to: PlayList.self) {
+              for item in result.playlist {
+                list = buildEpisodes(item.playlist)
+              }
+            }
             else if let result = try apiClient.decode(localizedData, to: SingleSeasonPlayList.self) {
               list = buildEpisodes(result.playlist)
             }
@@ -447,12 +461,12 @@ open class KinoTochkaApiService {
     Episode(comment: comment, file: "file", files: files)
   }
 
-  public func getCollections() throws -> [ResultItem] {
+  public func getCollections() async throws -> [ResultItem] {
     var collection = [ResultItem]()
 
     let path = "/podborki_filmov.html"
 
-    if let document = try getDocument(path) {
+    if let document = try await getDocument(path) {
       let items = try document.select("div[id=dle-content] div div div")
 
       for item: Element in items.array() {
@@ -474,13 +488,13 @@ open class KinoTochkaApiService {
     return collection
   }
 
-  public func getCollection(_ path: String, page: Int=1) throws -> ApiResults {
+  public func getCollection(_ path: String, page: Int=1) async throws -> ApiResults {
     var collection = [ResultItem]()
     var pagination = Pagination()
 
     let pagePath = getPagePath(path, page: page)
 
-    if let document = try getDocument(pagePath) {
+    if let document = try await getDocument(pagePath) {
       let items = try document.select("div[id=dle-content] div[class=custom1-item]")
 
       for item: Element in items.array() {
@@ -489,7 +503,7 @@ open class KinoTochkaApiService {
         var thumb = ""
 
         if let first = try item.select("a[class=custom1-img] img").first() {
-          thumb = try first.attr("src") 
+          thumb = try first.attr("src")
         }
 
         var type = "movie"
@@ -509,12 +523,12 @@ open class KinoTochkaApiService {
     return ApiResults(items: collection, pagination: pagination)
   }
 
-  public func getUserCollections() throws ->  [ResultItem] {
+  public func getUserCollections() async throws ->  [ResultItem] {
     var collection = [ResultItem]()
 
     let path = "/playlist/"
 
-    if let document = try getDocument(path) {
+    if let document = try await getDocument(path) {
       let items = try document.select("div[id=dle-content] div div div[class=custom1-img]")
 
       for item: Element in items.array() {
@@ -535,13 +549,13 @@ open class KinoTochkaApiService {
     return collection
   }
 
-  public func getUserCollection(_ path: String, page: Int=1) throws -> ApiResults {
+  public func getUserCollection(_ path: String, page: Int=1) async throws -> ApiResults {
     var collection = [ResultItem]()
     var pagination = Pagination()
 
     let pagePath = getPagePath(path, page: page)
 
-    if let document = try getDocument(pagePath) {
+    if let document = try await getDocument(pagePath) {
       let items = try document.select("div[id=dle-content] div div")
 
       for item: Element in items.array() {
