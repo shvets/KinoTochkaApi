@@ -219,7 +219,16 @@ open class KinoTochkaApiService {
   public func getUrls(_ path: String) throws -> [String] {
     var urls: [String] = []
 
-    if let document = try getDocumentSync(path) {
+    var newPath: String
+
+    if path.starts(with: "http://") || path.starts(with: "https://") {
+      newPath = KinoTochkaApiService.getURLPathOnly(path, baseUrl: KinoTochkaApiService.SiteUrl)
+    }
+    else {
+      newPath = path
+    }
+
+    if let document = try getDocumentSync(newPath) {
       let items = try document.select("script")
 
       for item: Element in items.array() {
