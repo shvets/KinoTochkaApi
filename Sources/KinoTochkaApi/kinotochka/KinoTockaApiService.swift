@@ -293,6 +293,24 @@ open class KinoTochkaApiService {
     return url
   }
 
+  public func getDetails(_ path: String) throws -> ResultItem? {
+    let newPath = KinoTochkaApiService.getURLPathOnly(path, baseUrl: KinoTochkaApiService.SiteUrl)
+
+    if let document = try getDocumentSync(newPath) {
+      let items = try document.select("div[class=full-text movie-desc clearfix]").array()
+
+      if items.count > 0 {
+        let item = items.first
+
+        let description = try item!.text()
+
+        return ["description": description]
+      }
+    }
+
+    return nil
+  }
+
   public func search(_ query: String, page: Int=1, perPage: Int=15) async throws -> ApiResults {
     var collection = [ResultItem]()
     var pagination = Pagination()

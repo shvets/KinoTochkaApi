@@ -96,7 +96,7 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssert(list.count > 0)
   }
 
-  func testGetSeriePlaylistUrl() async throws {
+  func testGetSeasonPlaylistUrl() async throws {
     let path = "14938-katya-i-blek-1-sezon-2020-4.html"
 
     let url = try await subject.getSeasonPlaylistUrl(path)
@@ -105,6 +105,17 @@ class KinoTochkaAPITests: XCTestCase {
 
     XCTAssertNotNil(url)
     XCTAssert(url.count > 0)
+  }
+
+  func testGetDetails() async throws {
+    let path = "22692-na-solnce-vdol-ryadov-kukuruzy-2023.html"
+
+    let details = try await subject.getDetails(path)
+
+    print(try details.prettify())
+
+    XCTAssertNotNil(details)
+    XCTAssert(details!.count > 0)
   }
 
   func testSearch() async throws {
