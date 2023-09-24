@@ -1,4 +1,4 @@
-// swift-tools-version:5.7
+// swift-tools-version:5.9
 
 import PackageDescription
 
@@ -13,8 +13,8 @@ let package = Package(
     .library(name: "KinoTochkaApi", targets: ["KinoTochkaApi"])
   ],
   dependencies: [
-    .package(name: "SimpleHttpClient", path: "../SimpleHttpClient"),
-    //.package(url: "https://github.com/shvets/SimpleHttpClient", from: "1.0.8"),
+    //.package(name: "SimpleHttpClient", path: "../SimpleHttpClient"),
+    .package(url: "https://github.com/shvets/SimpleHttpClient", from: "1.0.9"),
     .package(url: "https://github.com/scinfu/SwiftSoup", from: "2.3.2"),
     .package(url: "https://github.com/JohnSundell/Codextended", from: "0.3.0"),
   ],

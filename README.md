@@ -17,6 +17,8 @@ swift package show-dependencies --format json
 swift -I .build/debug -L .build/debug -lKinoTochkaApi
 ```
 
+# Publishing
+
 ```bash
 git tag 1.0.0
 git push origin 1.0.0
