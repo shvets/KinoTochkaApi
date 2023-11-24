@@ -86,10 +86,12 @@ class KinoTochkaAPITests: XCTestCase {
   }
 
   func testGetUrls() async throws {
-    let path = "/11792-roketmen-2019-4k.html"
+    let path = "/24821-beri-da-pomni-2023.html"
+    //https://s19.vidme.link/video_mp4/films/2023/BeryPomny/Y1xjV3ZsaHh2OBo3ECwxD3cdJToEAxUR_YkVjSX50aAt2Vg::/BeryPomny2023.mp4
 
     let list = try await subject.getUrls(path)
 
+    print(list)
     print(try list.prettify())
 
     XCTAssertNotNil(list)
@@ -108,7 +110,7 @@ class KinoTochkaAPITests: XCTestCase {
   }
 
   func testGetDetails() async throws {
-    let path = "22692-na-solnce-vdol-ryadov-kukuruzy-2023.html"
+    let path = "https://kinovibe.tv/19907-vse-vezde-i-srazu-2022.html"
 
     let details = try await subject.getDetails(path)
 

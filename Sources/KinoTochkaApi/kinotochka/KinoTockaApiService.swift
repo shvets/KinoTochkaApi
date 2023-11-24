@@ -9,12 +9,12 @@ class DelegateToHandle302: NSObject, URLSessionTaskDelegate {
                   newRequest request: URLRequest) async -> URLRequest? {
     lastLocation = response.allHeaderFields["Location"] as? String
 
-    return Optional(request)
+    return request
   }
 }
 
 open class KinoTochkaApiService {
-  public static let SiteUrl = "https://kinotochka.co"
+  public static let SiteUrl = "https://kinovibe.tv"
   let UserAgent = "KinoTochka User Agent"
 
   let apiClient = ApiClient(URL(string: SiteUrl)!)
@@ -148,11 +148,11 @@ open class KinoTochkaApiService {
   }
 
   public func getRussianAnimations(page: Int=1) async throws -> ApiResults {
-    try await getMovies("/cartoons/otechmult/", page: page)
+    try await getMovies("/cartoon/rusmult", page: page)
   }
 
   public func getForeignAnimations(page: Int=1) async throws -> ApiResults {
-    let location = try await getRedirectLocation(path: "/zarubezmult/") ?? "/zarubezmult/"
+    let location = try await getRedirectLocation(path: "/cartoon/zarubezmult/") ?? "/cartoon/zarubezmult/"
 
     return try await getMovies(location, page: page)
   }
@@ -162,7 +162,7 @@ open class KinoTochkaApiService {
 //  }
 
   public func getTvShows(page: Int=1) async throws -> ApiResults {
-    let location = try await getRedirectLocation(path: "/show/") ?? "/show/"
+    let location = try await getRedirectLocation(path: "/shows/") ?? "/shows/"
 
     let result = try await getMovies(location, page: page, serie: true)
 
