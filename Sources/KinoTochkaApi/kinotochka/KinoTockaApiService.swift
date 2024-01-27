@@ -14,7 +14,7 @@ class DelegateToHandle302: NSObject, URLSessionTaskDelegate {
 }
 
 open class KinoTochkaApiService {
-  public static let SiteUrl = "https://kinovibe.tv"
+  public static let SiteUrl = "https://kinovibe.co"
   let UserAgent = "KinoTochka User Agent"
 
   let apiClient = ApiClient(URL(string: SiteUrl)!)
@@ -107,7 +107,7 @@ open class KinoTochkaApiService {
   }
 
   public func getNewMovies(page: Int=1) async throws -> ApiResults {
-    let location = try await getRedirectLocation(path: "/new/") ?? "/new/"
+    let location = try await getRedirectLocation(path: "/premier/") ?? "/premier/"
 
     return try await getMovies(location, page: page)
   }
