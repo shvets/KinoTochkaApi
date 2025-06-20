@@ -101,9 +101,9 @@ open class KinoTochkaApiService {
 //  }
 
   public func getAllMovies(page: Int=1) async throws -> ApiResults {
-    let location = try await getRedirectLocation(path: "/films/") ?? "/films/"
+    //let location = try await getRedirectLocation(path: "/films/") ?? "/films/"
 
-    return try await getMovies(location, page: page)
+    return try await getMovies("/films/", page: page)
   }
 
   public func getNewMovies(page: Int=1) async throws -> ApiResults {
