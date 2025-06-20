@@ -20,7 +20,7 @@ swift -I .build/debug -L .build/debug -lKinoTochkaApi
 # Publishing
 
 ```bash
-git tag 1.0.4
+git tag 1.0.5
 git push --tags
 ```
 
