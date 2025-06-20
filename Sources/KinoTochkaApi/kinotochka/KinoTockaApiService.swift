@@ -14,7 +14,7 @@ class DelegateToHandle302: NSObject, URLSessionTaskDelegate {
 }
 
 open class KinoTochkaApiService {
-  public static let SiteUrl = "https://kinovibe.co"
+  public static let SiteUrl = "https://kinovibe.vip"
   let UserAgent = "KinoTochka User Agent"
 
   let apiClient = ApiClient(URL(string: SiteUrl)!)
