@@ -105,17 +105,23 @@ open class KinoTochkaApiService {
 
     return try await getMovies("/films/", page: page)
   }
+  
+  public func getAll720Movies(page: Int=1) async throws -> ApiResults {
+    //let location = try await getRedirectLocation(path: "/films/") ?? "/films/"
+
+    return try await get720Movies("/films/", page: page)
+  }
 
   public func getNewMovies(page: Int=1) async throws -> ApiResults {
-    let location = try await getRedirectLocation(path: "/premier/") ?? "/premier/"
+    //let location = try await getRedirectLocation(path: "/premier/") ?? "/premier/"
 
-    return try await getMovies(location, page: page)
+    return try await getMovies("/premier/", page: page)
   }
 
   public func getAllSeries(page: Int=1) async throws -> ApiResults {
-    let location = try await getRedirectLocation(path: "/series/") ?? "/series/"
+    //let location = try await getRedirectLocation(path: "/series/") ?? "/series/"
 
-    let result = try await getMovies(location, page: page, serie: true)
+    let result = try await getMovies("/series/", page: page, serie: true)
 
     return ApiResults(items: try sanitizeNames(result.items), pagination: result.pagination)
   }
@@ -142,9 +148,9 @@ open class KinoTochkaApiService {
   }
 
   public func getAllAnimations(page: Int=1) async throws -> ApiResults {
-    let location = try await getRedirectLocation(path: "/cartoon/") ?? "/cartoon/"
+    //let location = try await getRedirectLocation(path: "/cartoon/") ?? "/cartoon/"
 
-    return try await getMovies(location, page: page)
+    return try await getMovies("/cartoon/", page: page)
   }
 
   public func getRussianAnimations(page: Int=1) async throws -> ApiResults {
@@ -152,9 +158,9 @@ open class KinoTochkaApiService {
   }
 
   public func getForeignAnimations(page: Int=1) async throws -> ApiResults {
-    let location = try await getRedirectLocation(path: "/cartoon/zarubezmult/") ?? "/cartoon/zarubezmult/"
+    //let location = try await getRedirectLocation(path: "/cartoon/zarubezmult/") ?? "/cartoon/zarubezmult/"
 
-    return try await getMovies(location, page: page)
+    return try await getMovies("/cartoon/zarubezmult/", page: page)
   }
 
 //  public func getAnime(page: Int=1) throws -> ApiResults {
@@ -162,9 +168,9 @@ open class KinoTochkaApiService {
 //  }
 
   public func getTvShows(page: Int=1) async throws -> ApiResults {
-    let location = try await getRedirectLocation(path: "/shows/") ?? "/shows/"
+    //let location = try await getRedirectLocation(path: "/shows/") ?? "/shows/"
 
-    let result = try await getMovies(location, page: page, serie: true)
+    let result = try await getMovies("/shows/", page: page, serie: true)
 
     return ApiResults(items: try sanitizeNames(result.items), pagination: result.pagination)
   }
@@ -210,6 +216,41 @@ open class KinoTochkaApiService {
 
       if items.size() > 0 {
         pagination = try extractPaginationData(document, page: page)
+      }
+    }
+
+    return ApiResults(items: collection, pagination: pagination)
+  }
+  
+  public func get720Movies(_ path: String, page: Int=1, serie: Bool=false) async throws -> ApiResults {
+    var collection = [ResultItem]()
+    var pagination = Pagination()
+
+    let pagePath = getPagePath(path, page: page)
+
+    if let document = try await getDocument(pagePath) {
+      let items = try document.select("div[class=section] .custom1-item")
+
+      for item: Element in items.array() {
+        let href = try item.select("a[class=custom1-img]").attr("href")
+        let name = try item.select("div[class=custom1-title").text()
+        var thumb = ""
+
+        if let first = try item.select("a[class=custom1-img] img").first() {
+          thumb = try first.attr("src")
+        }
+
+        var type = serie ? "serie" : "movie";
+
+        if name.contains("Сезон") || name.contains("сезон") {
+          type = "serie"
+        }
+
+        collection.append(["id": href, "name": name, "thumb": thumb, "type": type])
+      }
+
+      if items.size() > 0 {
+        pagination = Pagination(page: page, pages: 1, has_previous: false, has_next: false)
       }
     }
 

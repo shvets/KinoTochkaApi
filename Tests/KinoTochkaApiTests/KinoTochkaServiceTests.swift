@@ -19,6 +19,15 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssertNotNil(list)
     XCTAssert(list.items.count > 0)
   }
+  
+ func testGetAll720Movies() async throws {
+   let list = try await subject.getAll720Movies()
+
+   print(try list.prettify())
+
+   XCTAssertNotNil(list)
+   XCTAssert(list.items.count > 0)
+ }
 
   func testGetNewMovies() async throws {
     let list = try await subject.getNewMovies()
@@ -38,16 +47,16 @@ class KinoTochkaAPITests: XCTestCase {
     XCTAssert(list.items.count > 0)
   }
 
-  func testGetRedirectLocation() async throws {
-    let location = try await subject.getRedirectLocation(path: "/series/")
-
-    print(location)
-
-//    print(try list.prettify())
+//  func testGetRedirectLocation() async throws {
+//    let location = try await subject.getRedirectLocation(path: "/series/")
 //
-//    XCTAssertNotNil(list)
-//    XCTAssert(list.items.count > 0)
-  }
+//    print(location)
+//
+////    print(try list.prettify())
+////
+////    XCTAssertNotNil(list)
+////    XCTAssert(list.items.count > 0)
+//  }
 
   func testGetRussianAnimations() async throws {
     let list = try await subject.getRussianAnimations()
