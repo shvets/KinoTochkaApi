@@ -4,7 +4,7 @@ import SimpleHttpClient
 extension KinoTochkaApiService {
   public typealias ResultItem = [String: String]
 
-  public struct Pagination: Codable {
+  public struct Pagination: Codable, Sendable {
     let page: Int
     let pages: Int
     let has_previous: Bool
@@ -18,7 +18,7 @@ extension KinoTochkaApiService {
     }
   }
 
-  public struct ApiResults: Codable {
+  public struct ApiResults: Codable, Sendable {
     public let items: [ResultItem]
     let pagination: Pagination?
 
@@ -29,7 +29,7 @@ extension KinoTochkaApiService {
     }
   }
 
-  public struct Episode: Codable {
+  public struct Episode: Codable, Sendable {
     public let comment: String
     public var file: String
 
@@ -47,7 +47,7 @@ extension KinoTochkaApiService {
     }
   }
 
-  public struct Season: Codable {
+  public struct Season: Codable, Sendable {
     public let comment: String
     public let playlist: [Episode]
 
@@ -58,11 +58,11 @@ extension KinoTochkaApiService {
     }
   }
 
-  public struct PlayList: Codable {
+  public struct PlayList: Codable, Sendable {
     public let playlist: [Season]
   }
 
-  public struct SingleSeasonPlayList: Codable {
+  public struct SingleSeasonPlayList: Codable, Sendable {
     public let playlist: [Episode]
   }
 
