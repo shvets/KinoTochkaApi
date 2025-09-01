@@ -126,7 +126,7 @@ class KinoTochkaAPITests: XCTestCase {
     print(try details.prettify())
 
     XCTAssertNotNil(details)
-    XCTAssert(details!.count > 0)
+    XCTAssert(details!.value.count > 0)
   }
 
   func testSearch() async throws {

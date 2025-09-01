@@ -129,16 +129,16 @@ open class KinoTochkaApiService {
   private func sanitizeNames(_ movies: Any) throws -> [ResultItem] {
     var newMovies = [ResultItem]()
 
-    for var movie in movies as! [[String: String]] {
+    for movie in movies as! [ResultItem] {
       let pattern = "(\\d*\\s(С|с)езон)\\s"
 
       let regex = try NSRegularExpression(pattern: pattern)
 
-      if let name = movie["name"] {
+      if let name = movie.value["name"] {
         let correctedName = regex.stringByReplacingMatches(in: name, options: [], range: NSMakeRange(0, name.count),
             withTemplate: "")
 
-        movie["name"] = correctedName
+        //movie.value["name"] = correctedName
 
         newMovies.append(movie)
       }
@@ -211,7 +211,7 @@ open class KinoTochkaApiService {
           type = "serie"
         }
 
-        collection.append(["id": href, "name": name, "thumb": thumb, "type": type])
+        collection.append(ResultItem(value: ["id": href, "name": name, "thumb": thumb, "type": type]))
       }
 
       if items.size() > 0 {
@@ -246,7 +246,7 @@ open class KinoTochkaApiService {
           type = "serie"
         }
 
-        collection.append(["id": href, "name": name, "thumb": thumb, "type": type])
+        collection.append(ResultItem(value:["id": href, "name": name, "thumb": thumb, "type": type]))
       }
 
       if items.size() > 0 {
@@ -345,7 +345,7 @@ open class KinoTochkaApiService {
 
         let description = try item!.text()
 
-        return ["description": description]
+        return ResultItem(value: ["description": description])
       }
     }
 
@@ -391,7 +391,7 @@ open class KinoTochkaApiService {
           type = "serie"
         }
 
-        collection.append(["id": href, "name": name, "description": description, "thumb": thumb, "type": type])
+        collection.append(ResultItem(value:["id": href, "name": name, "description": description, "thumb": thumb, "type": type]))
       }
 
       if items.size() > 0 {
@@ -439,7 +439,7 @@ open class KinoTochkaApiService {
             item["thumb"] = thumb
           }
 
-          collection.append(item)
+          collection.append(ResultItem(value: item))
         }
       }
 
@@ -453,7 +453,7 @@ open class KinoTochkaApiService {
             item["thumb"] = thumb
           }
 
-          collection.append(item)
+          collection.append(ResultItem(value: item))
         }
       }
       else {
@@ -463,7 +463,7 @@ open class KinoTochkaApiService {
           item["thumb"] = thumb
         }
 
-        collection.append(item)
+        collection.append(ResultItem(value: item))
       }
     }
 
@@ -546,7 +546,7 @@ open class KinoTochkaApiService {
           let thumb = try link[0].select("img").attr("src")
 
           if href != "/playlist/" {
-            collection.append(["id": href, "name": name, "thumb": KinoTochkaApiService.SiteUrl + thumb])
+            collection.append(ResultItem(value:["id": href, "name": name, "thumb": KinoTochkaApiService.SiteUrl + thumb]))
             //collection.append(["id": KinoTochkaApiService.SiteUrl + href, "name": name, "thumb": KinoTochkaApiService.SiteUrl + thumb, "type": "collection"])
           }
         }
@@ -580,7 +580,7 @@ open class KinoTochkaApiService {
           type = "serie"
         }
 
-        collection.append(["id": href, "name": name, "thumb": thumb, "type": type])
+        collection.append(ResultItem(value: ["id": href, "name": name, "thumb": thumb, "type": type]))
       }
 
       if items.size() > 0 {
@@ -607,7 +607,7 @@ open class KinoTochkaApiService {
           let name = try link[1].text()
           let thumb = try link[0].select("img").attr("src")
 
-          collection.append(["id": href, "name": name, "thumb":  KinoTochkaApiService.SiteUrl + thumb])
+          collection.append(ResultItem(value:["id": href, "name": name, "thumb":  KinoTochkaApiService.SiteUrl + thumb]))
 
 //          collection.append(["id": KinoTochkaApiService.SiteUrl + href, "name": name, "thumb": KinoTochkaApiService.SiteUrl + thumb, "type": "collection"])
         }
@@ -640,7 +640,7 @@ open class KinoTochkaApiService {
             type = "serie"
           }
 
-          collection.append(["id": href, "name": name, "thumb": thumb, "type": type])
+          collection.append(ResultItem(value: ["id": href, "name": name, "thumb": thumb, "type": type]))
         }
       }
 

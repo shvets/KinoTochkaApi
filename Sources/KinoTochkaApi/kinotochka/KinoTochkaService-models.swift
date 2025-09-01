@@ -2,8 +2,10 @@ import Foundation
 import SimpleHttpClient
 
 extension KinoTochkaApiService {
-  public typealias ResultItem = [String: String]
-
+  public struct ResultItem: Codable, Sendable {
+    public let value: [String: String]
+  }
+    
   public struct Pagination: Codable, Sendable {
     let page: Int
     let pages: Int
